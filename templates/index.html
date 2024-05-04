@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Prices</title>
+</head>
+<body>
+    <h2>Search Prices</h2>
+    <!-- Add an input field for the recipe ID -->
+    <input type="text" id="recipeId" placeholder="Enter Recipe ID" oninput="fetchRecipePrices()">
+    <div id="searchResults"></div>
+
+    <script>
+        function fetchRecipePrices() {
+            // Get the recipe ID from the input field
+            const recipeId = document.getElementById("recipeId").value;
+
+            // Fetch data from /search/search_prices with the recipe ID as a query parameter
+            fetch(`/search/search_prices?recipe_id=${recipeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const searchResultsDiv = document.getElementById("searchResults");
+                    searchResultsDiv.innerHTML = ""; // Clear previous results
+                    if (data.length === 0) {
+                        searchResultsDiv.textContent = "No results found.";
+                    } else {
+                        const table = document.createElement("table");
+
+                        // Create custom table headers
+                        const headerRow = document.createElement("tr");
+                        const headers = ["Product", "Price"];
+                        headers.forEach(headerText => {
+                            const headerCell = document.createElement("th");
+                            headerCell.textContent = headerText;
+                            headerRow.appendChild(headerCell);
+                        });
+                        table.appendChild(headerRow);
+
+                        // Create table rows
+                        data.forEach(result => {
+                            const row = document.createElement("tr");
+                            // Skip ID and User_ID columns
+                            for (const key in result) {
+                                if (key !== "id" && key !== "user_id") {
+                                    const cell = document.createElement("td");
+                                    cell.textContent = result[key];
+                                    row.appendChild(cell);
+                                }
+                            }
+                            table.appendChild(row);
+                        });
+
+                        searchResultsDiv.appendChild(table);
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+        }
+
+        // Fetch data when the page loads (optional)
+        window.onload = fetchRecipePrices;
+    </script>
+</body>
+</html>

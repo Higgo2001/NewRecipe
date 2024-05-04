@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insert Recipe</title>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+        td, th {
+            border: 1px solid black;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Insert Recipe</h2>
+    <button onclick="window.location.href='/insert_specials'">Insert Specials</button>
+    <button onclick="window.location.href='/search'">Search Recipe</button><br>
+    <form id="product_form">
+        <label for="dish_name">Dish Name:</label>
+        <input type="text" name="dish_name" id="dish_name">
+        <br>
+        <label for="dish_type">Type of Dish:</label>
+        <select name="dish_type" id="dish_type">
+            <option value=""></option>
+            <option value="Starter">Starter</option>
+            <option value="Main">Main</option>
+            <option value="Dessert">Dessert</option>
+            <option value="Baking">Baking</option>
+        </select>
+        <br>
+        <label for="dish_sort">Sort of Dish:</label>
+        <select name="dish_sort" id="dish_sort">
+            <option value=""></option>
+            <option value="Hot">Hot</option>
+            <option value="Fried">Fried</option>
+            <option value="Cold">Cold</option>
+            <option value="Spicy">Spicy</option>
+        </select>
+        <br>
+        <label for="dish_time">Time to Make Dish:</label>
+        <select name="dish_time" id="dish_time">
+            <option value=""></option>
+            <option value="10_Minutes">10_Minutes</option>
+            <option value="15_Minutes">15_Minutes</option>
+             <option value="20_Minutes">20_Minutes</option>
+             <option value="25_Minutes">25_Minutes</option>
+             <option value="30_Minutes">30_Minutes</option>
+             <option value="40_Minutes">40_Minutes</option>
+             <option value="50_Minutes">50_Minutes</option>
+             <option value="1_Hour">1_Hour</option>
+             <option value="1.5_Hours">1.5_Hours</option>
+             <option value="2_Hours">2_Hours</option>
+             <option value="2.5_Hours">2.5_Hours</option>
+             <option value="3_Hours">3_Hours</option>
+             <option value="4_Hours">4_Hours</option>
+             <option value="1_Day">1_Day</option>
+             <option value="More_Than_1_Day">More_Than_1_Day</option>
+            <!-- Add other time options -->
+        </select>
+        <br>
+        <label for="product_other">Other Products Needed:</label>
+        <textarea name="product_other" id="product_other" rows="4" oninput="formatInput()"></textarea>
+        <br><br>
+        <label for="description">How to Make the Dish:</label>
+        <textarea name="description" id="description" rows="4"></textarea>
+        <br>
+        <label for="machinery">Specific Equipment Needed:</label>
+        <select name="machinery" id="machinery">
+            <option value=""></option>
+            <option value="Mixer">Mixer</option>
+            <option value="Pot">Pot</option>
+            <option value="Pressure_Cooker">Pressure Cooker</option>
+            <option value="Blender">Blender</option>
+            <option value="Pressure_Cooker_and_Blender">Pressure Cooker and Blender</option>
+            <!-- Add other machinery options -->
+        </select>
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        // Function to handle form submission
+        document.getElementById('product_form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            // Get form data
+            var formData = new FormData(this); // Get form data
+
+            // Send form data to server using fetch API
+            fetch('/insert_recipe', { // Send form data to server using fetch API
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.text(); // If response is successful, return text response
+                }
+                throw new Error('Network response was not ok.');
+            })
+            .then(data => {
+                console.log(data); // Log response from server
+                // Handle response as needed (e.g., display success message)
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error); // Log any errors
+                // Handle errors as needed (e.g., display error message)
+            });
+        });
+
+        // Function to format input in the textarea
+        function formatInput() {
+            const textarea = document.getElementById("product_other");
+            textarea.value = textarea.value.replace(/\n/g, ',');
+        }
+    </script>
+</body>
+</html>

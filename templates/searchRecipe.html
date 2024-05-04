@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Recipe</title>
+
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h2>Search Recipe</h2>
+    <button onclick="window.location.href='/insert_specials'">Insert Specials</button>
+    <button onclick="window.location.href='/insert_recipe'">Create Recipe</button>
+    <br>
+    <input type="text" id="searchWord1" placeholder="Enter a word to search">
+    <input type="text" id="searchWord2" placeholder="Enter a word to search">
+    <input type="text" id="searchWord3" placeholder="Enter a word to search">
+    <br>
+    <label for="time">Time to Make Dish:</label>
+    <select name="time" id="time">
+        <option value=""></option>
+        <option value="10_Minutes">10 Minutes</option>
+        <option value="15_Minutes">15 Minutes</option>
+        <option value="20_Minutes">20 Minutes</option>
+        <option value="25_Minutes">25 Minutes</option>
+        <option value="30_Minutes">30 Minutes</option>
+        <option value="40_Minutes">40 Minutes</option>
+        <option value="50_Minutes">50 Minutes</option>
+        <option value="1_Hour">1 Hour</option>
+        <option value="1.5_Hours">1.5 Hours</option>
+        <option value="2_Hours">2 Hours</option>
+        <option value="2.5_Hours">2.5 Hours</option>
+        <option value="3_Hours">3 Hours</option>
+        <option value="4_Hours">4 Hours</option>
+        <option value="1_Day">1 Day</option>
+        <option value="More_Than_1_Day">More Than 1 Day</option>
+        <!-- Add other time options -->
+    </select>
+    <br>
+    <button id="searchButton">Search</button>
+    <div id="searchResults"></div>
+
+    <script>
+    function performSearch() {
+        const searchWord1 = document.getElementById("searchWord1").value;
+        const searchWord2 = document.getElementById("searchWord2").value;
+        const searchWord3 = document.getElementById("searchWord3").value;
+        const time = document.getElementById("time").value;
+
+        fetch(`/search?word1=${searchWord1}&word2=${searchWord2}&word3=${searchWord3}&dishtime=${time}`)
+            .then(response => response.json())
+            .then(data => {
+                const searchResultsDiv = document.getElementById("searchResults");
+                searchResultsDiv.innerHTML = ""; // Clear previous results
+                if (data.length === 0) {
+                    searchResultsDiv.textContent = "No recipes found.";
+                } else {
+                    const table = document.createElement("table");
+
+                    // Create custom table headers
+                    const headerRow = document.createElement("tr");
+                    const headers = ["Dish Name", "Dish Type", "Dish Sort", "Dish Time", "Other Products", "Description", "Machinery", "Actions"];
+                    headers.forEach(headerText => {
+                        const headerCell = document.createElement("th");
+                        headerCell.textContent = headerText;
+                        headerRow.appendChild(headerCell);
+                    });
+                    table.appendChild(headerRow);
+
+                    // Create table rows
+                    data.forEach(result => {
+                        const row = document.createElement("tr");
+                        const recipe = result;
+                        const keys = ["DishName", "DishType", "DishSort", "DishTime", "ProductOtherProducts", "Description", "Machinery"];
+                        keys.forEach(key => {
+                            const cell = document.createElement("td");
+                            if (key === "ProductOtherProducts") {
+                                const products = recipe[key].split(',');
+                                products.forEach((product, index) => {
+                                    const productSpan = document.createElement("span");
+                                    productSpan.textContent = product.trim();
+                                    cell.appendChild(productSpan);
+                                    if (index < products.length - 1) {
+                                        cell.appendChild(document.createElement("br")); // Add line break
+                                    }
+                                });
+                            } else {
+                                cell.textContent = recipe[key];
+                            }
+                            row.appendChild(cell);
+                        });
+
+                        // Create search button for each row
+                        const searchButtonCell = document.createElement("td");
+                        const searchButton = document.createElement("button");
+                        searchButton.textContent = "Search";
+                        searchButton.onclick = function () {
+                            // Handle search action here
+                            console.log("Search button clicked for row:", result);
+
+                            // Store the recipe ID in sessionStorage
+                            sessionStorage.setItem('recipeId', result.DishName);
+
+                            // Redirect to the search_prices page
+                            window.location.href = '/search/search_prices';
+                        };
+                        searchButtonCell.appendChild(searchButton);
+                        row.appendChild(searchButtonCell);
+
+                        table.appendChild(row);
+                    });
+
+                    searchResultsDiv.appendChild(table);
+                }
+            })
+            .catch(error => console.error("Error:", error));
+    }
+
+    document.getElementById("searchButton").addEventListener("click", performSearch);
+</script>
+
+</body>
+</html>
